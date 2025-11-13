@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sistema de control de ventas para SimpleClub">
+    <meta name="theme-color" content="#4CAF50">
+    <title>SimpleClub - Control de Ventas</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💰 SimpleClub</h1>
+            <p class="subtitle">Control de Ventas</p>
+        </header>
+
+        <!-- Navegación por pestañas -->
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="ventas">Ventas</button>
+            <button class="tab-btn" data-tab="productos">Productos</button>
+            <button class="tab-btn" data-tab="miembros">Miembros</button>
+            <button class="tab-btn" data-tab="estadisticas">Estadísticas</button>
+        </nav>
+
+        <!-- Pestaña de Ventas -->
+        <div id="ventas" class="tab-content active">
+            <section class="card">
+                <h2>Nueva Venta</h2>
+                <form id="form-venta">
+                    <div class="form-group">
+                        <label for="producto">Producto</label>
+                        <select id="producto" required>
+                            <option value="">Selecciona un producto</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="vendedor">Vendedor</label>
+                        <select id="vendedor" required>
+                            <option value="">Selecciona un vendedor</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="cantidad">Cantidad</label>
+                        <input type="number" id="cantidad" min="1" value="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="precio">Precio Unitario ($)</label>
+                        <input type="number" id="precio" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="fecha">Fecha</label>
+                        <input type="date" id="fecha" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="notas">Notas (opcional)</label>
+                        <textarea id="notas" rows="2"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Registrar Venta</button>
+                </form>
+            </section>
+
+            <section class="card">
+                <h2>Historial de Ventas</h2>
+                <div class="search-bar">
+                    <input type="text" id="buscar-venta" placeholder="Buscar por producto, vendedor o notas...">
+                </div>
+                <div id="lista-ventas" class="lista-items">
+                    <p class="empty-message">No hay ventas registradas</p>
+                </div>
+            </section>
+        </div>
+
+        <!-- Pestaña de Productos -->
+        <div id="productos" class="tab-content">
+            <section class="card">
+                <h2>Agregar Producto</h2>
+                <form id="form-producto">
+                    <div class="form-group">
+                        <label for="nombre-producto">Nombre del Producto</label>
+                        <input type="text" id="nombre-producto" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="precio-sugerido">Precio Sugerido ($)</label>
+                        <input type="number" id="precio-sugerido" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="descripcion-producto">Descripción (opcional)</label>
+                        <textarea id="descripcion-producto" rows="2"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Agregar Producto</button>
+                </form>
+            </section>
+
+            <section class="card">
+                <h2>Catálogo de Productos</h2>
+                <div id="lista-productos" class="lista-items">
+                    <p class="empty-message">No hay productos registrados</p>
+                </div>
+            </section>
+        </div>
+
+        <!-- Pestaña de Miembros -->
+        <div id="miembros" class="tab-content">
+            <section class="card">
+                <h2>Agregar Miembro</h2>
+                <form id="form-miembro">
+                    <div class="form-group">
+                        <label for="nombre-miembro">Nombre del Miembro</label>
+                        <input type="text" id="nombre-miembro" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="telefono">Teléfono (opcional)</label>
+                        <input type="tel" id="telefono">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Agregar Miembro</button>
+                </form>
+            </section>
+
+            <section class="card">
+                <h2>Lista de Miembros</h2>
+                <div id="lista-miembros" class="lista-items">
+                    <p class="empty-message">No hay miembros registrados</p>
+                </div>
+            </section>
+        </div>
+
+        <!-- Pestaña de Estadísticas -->
+        <div id="estadisticas" class="tab-content">
+            <section class="card">
+                <h2>Resumen General</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-ventas">$0.00</div>
+                        <div class="stat-label">Total Vendido</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="num-ventas">0</div>
+                        <div class="stat-label">Número de Ventas</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-productos">0</div>
+                        <div class="stat-label">Productos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-miembros">0</div>
+                        <div class="stat-label">Miembros</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Top Vendedores</h2>
+                <div id="top-vendedores" class="lista-items">
+                    <p class="empty-message">No hay datos disponibles</p>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Productos Más Vendidos</h2>
+                <div id="top-productos" class="lista-items">
+                    <p class="empty-message">No hay datos disponibles</p>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Gestión de Datos</h2>
+                <div class="button-group">
+                    <button id="exportar-datos" class="btn btn-secondary">📥 Exportar Datos (JSON)</button>
+                    <button id="importar-datos" class="btn btn-secondary">📤 Importar Datos</button>
+                    <input type="file" id="file-import" accept=".json" style="display: none;">
+                    <button id="limpiar-datos" class="btn btn-danger">🗑️ Limpiar Todos los Datos</button>
+                </div>
+            </section>
+        </div>
+
+        <footer>
+            <p>SimpleClub © 2024 | Hecho con ❤️ para tu club</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
