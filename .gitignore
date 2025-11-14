@@ -10,7 +10,7 @@ package-lock.json
 
 # Archivos de entorno
 .env
-firebase-config.js
+# firebase-config.js  # Comentado: se incluye en el repo para GitHub Pages (es seguro, Firebase usa reglas de seguridad)
 
 # Logs
 logs/
