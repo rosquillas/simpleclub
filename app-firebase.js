@@ -1,9 +1,7 @@
 // Sistema de Control de Ventas para SimpleClub con Firebase
 // Base de datos en la nube con Firestore
 
-import firebaseConfig from './firebase-config.js';
-
-// Inicializar Firebase
+// Inicializar Firebase (firebaseConfig se carga desde firebase-config.js)
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
