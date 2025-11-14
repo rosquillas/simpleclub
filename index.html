@@ -166,12 +166,15 @@
             </section>
 
             <section class="card">
-                <h2>Gestión de Datos</h2>
-                <div class="button-group">
-                    <button id="exportar-datos" class="btn btn-secondary">📥 Exportar Datos (JSON)</button>
-                    <button id="importar-datos" class="btn btn-secondary">📤 Importar Datos</button>
-                    <input type="file" id="file-import" accept=".json" style="display: none;">
-                    <button id="limpiar-datos" class="btn btn-danger">🗑️ Limpiar Todos los Datos</button>
+                <h2>Información del Sistema</h2>
+                <div style="padding: 1rem; background: var(--bg-light); border-radius: 6px;">
+                    <p><strong>✅ Conectado a Firebase</strong></p>
+                    <p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">
+                        Tus datos se sincronizan automáticamente en la nube y están disponibles en todos tus dispositivos.
+                    </p>
+                    <p style="margin-top: 0.5rem; color: var(--text-light); font-size: 0.9rem;">
+                        🔄 Sincronización en tiempo real activa
+                    </p>
                 </div>
             </section>
         </div>
@@ -181,6 +184,12 @@
         </footer>
     </div>
 
-    <script src="app-db.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+    <!-- Configuración y App -->
+    <script type="module" src="app-firebase.js"></script>
 </body>
 </html>
