@@ -174,20 +174,53 @@ class SimpleClubFirebase {
             const precio = parseFloat(document.getElementById('precio-sugerido').value);
             const descripcion = document.getElementById('descripcion-producto').value;
 
-            await db.collection('productos').add({
-                nombre,
-                precio,
-                descripcion,
-                activo: true,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            // Verificar si estamos editando
+            const productoId = document.getElementById('form-producto').dataset.editId;
 
-            this.mostrarNotificacion('Producto agregado exitosamente ✓');
+            if (productoId) {
+                // Actualizar producto existente
+                await db.collection('productos').doc(productoId).update({
+                    nombre,
+                    precio,
+                    descripcion,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                this.mostrarNotificacion('Producto actualizado exitosamente ✓');
+                delete document.getElementById('form-producto').dataset.editId;
+            } else {
+                // Crear nuevo producto
+                await db.collection('productos').add({
+                    nombre,
+                    precio,
+                    descripcion,
+                    activo: true,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                this.mostrarNotificacion('Producto agregado exitosamente ✓');
+            }
+
             document.getElementById('form-producto').reset();
         } catch (error) {
-            console.error('Error al agregar producto:', error);
-            this.mostrarNotificacion('Error al agregar producto: ' + error.message, 'error');
+            console.error('Error al guardar producto:', error);
+            this.mostrarNotificacion('Error al guardar producto: ' + error.message, 'error');
         }
+    }
+
+    editarProducto(id) {
+        const producto = this.productos.find(p => p.id === id);
+        if (!producto) return;
+
+        document.getElementById('nombre-producto').value = producto.nombre;
+        document.getElementById('precio-sugerido').value = producto.precio;
+        document.getElementById('descripcion-producto').value = producto.descripcion || '';
+
+        // Guardar el ID para saber que estamos editando
+        document.getElementById('form-producto').dataset.editId = id;
+
+        // Scroll al formulario
+        document.querySelector('#productos .card').scrollIntoView({ behavior: 'smooth' });
     }
 
     async eliminarProducto(id) {
@@ -227,7 +260,10 @@ class SimpleClubFirebase {
                     <div class="item-details">Precio sugerido: $${p.precio.toFixed(2)}</div>
                     ${p.descripcion ? `<div class="item-details">${p.descripcion}</div>` : ''}
                 </div>
-                <button class="btn-delete" onclick="app.eliminarProducto('${p.id}')">Eliminar</button>
+                <div class="item-actions">
+                    <button class="btn-edit" onclick="app.editarProducto('${p.id}')">Editar</button>
+                    <button class="btn-delete" onclick="app.eliminarProducto('${p.id}')">Eliminar</button>
+                </div>
             </div>
         `).join('');
     }
@@ -239,19 +275,50 @@ class SimpleClubFirebase {
             const nombre = document.getElementById('nombre-miembro').value;
             const telefono = document.getElementById('telefono').value;
 
-            await db.collection('miembros').add({
-                nombre,
-                telefono: telefono || '',
-                activo: true,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            // Verificar si estamos editando
+            const miembroId = document.getElementById('form-miembro').dataset.editId;
 
-            this.mostrarNotificacion('Miembro agregado exitosamente ✓');
+            if (miembroId) {
+                // Actualizar miembro existente
+                await db.collection('miembros').doc(miembroId).update({
+                    nombre,
+                    telefono: telefono || '',
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                this.mostrarNotificacion('Miembro actualizado exitosamente ✓');
+                delete document.getElementById('form-miembro').dataset.editId;
+            } else {
+                // Crear nuevo miembro
+                await db.collection('miembros').add({
+                    nombre,
+                    telefono: telefono || '',
+                    activo: true,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                this.mostrarNotificacion('Miembro agregado exitosamente ✓');
+            }
+
             document.getElementById('form-miembro').reset();
         } catch (error) {
-            console.error('Error al agregar miembro:', error);
-            this.mostrarNotificacion('Error al agregar miembro: ' + error.message, 'error');
+            console.error('Error al guardar miembro:', error);
+            this.mostrarNotificacion('Error al guardar miembro: ' + error.message, 'error');
         }
+    }
+
+    editarMiembro(id) {
+        const miembro = this.miembros.find(m => m.id === id);
+        if (!miembro) return;
+
+        document.getElementById('nombre-miembro').value = miembro.nombre;
+        document.getElementById('telefono').value = miembro.telefono || '';
+
+        // Guardar el ID para saber que estamos editando
+        document.getElementById('form-miembro').dataset.editId = id;
+
+        // Scroll al formulario
+        document.querySelector('#miembros .card').scrollIntoView({ behavior: 'smooth' });
     }
 
     async eliminarMiembro(id) {
@@ -290,7 +357,10 @@ class SimpleClubFirebase {
                     <div class="item-title">${m.nombre}</div>
                     ${m.telefono ? `<div class="item-details">📱 ${m.telefono}</div>` : ''}
                 </div>
-                <button class="btn-delete" onclick="app.eliminarMiembro('${m.id}')">Eliminar</button>
+                <div class="item-actions">
+                    <button class="btn-edit" onclick="app.editarMiembro('${m.id}')">Editar</button>
+                    <button class="btn-delete" onclick="app.eliminarMiembro('${m.id}')">Eliminar</button>
+                </div>
             </div>
         `).join('');
     }
@@ -303,20 +373,53 @@ class SimpleClubFirebase {
             const telefono = document.getElementById('telefono-cliente').value;
             const email = document.getElementById('email-cliente').value;
 
-            await db.collection('clientes').add({
-                nombre,
-                telefono: telefono || '',
-                email: email || '',
-                activo: true,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            // Verificar si estamos editando
+            const clienteId = document.getElementById('form-cliente').dataset.editId;
 
-            this.mostrarNotificacion('Cliente agregado exitosamente ✓');
+            if (clienteId) {
+                // Actualizar cliente existente
+                await db.collection('clientes').doc(clienteId).update({
+                    nombre,
+                    telefono: telefono || '',
+                    email: email || '',
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                this.mostrarNotificacion('Cliente actualizado exitosamente ✓');
+                delete document.getElementById('form-cliente').dataset.editId;
+            } else {
+                // Crear nuevo cliente
+                await db.collection('clientes').add({
+                    nombre,
+                    telefono: telefono || '',
+                    email: email || '',
+                    activo: true,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                this.mostrarNotificacion('Cliente agregado exitosamente ✓');
+            }
+
             document.getElementById('form-cliente').reset();
         } catch (error) {
-            console.error('Error al agregar cliente:', error);
-            this.mostrarNotificacion('Error al agregar cliente: ' + error.message, 'error');
+            console.error('Error al guardar cliente:', error);
+            this.mostrarNotificacion('Error al guardar cliente: ' + error.message, 'error');
         }
+    }
+
+    editarCliente(id) {
+        const cliente = this.clientes.find(c => c.id === id);
+        if (!cliente) return;
+
+        document.getElementById('nombre-cliente').value = cliente.nombre;
+        document.getElementById('telefono-cliente').value = cliente.telefono || '';
+        document.getElementById('email-cliente').value = cliente.email || '';
+
+        // Guardar el ID para saber que estamos editando
+        document.getElementById('form-cliente').dataset.editId = id;
+
+        // Scroll al formulario
+        document.querySelector('#clientes .card').scrollIntoView({ behavior: 'smooth' });
     }
 
     async eliminarCliente(id) {
@@ -356,7 +459,10 @@ class SimpleClubFirebase {
                     ${c.telefono ? `<div class="item-details">📱 ${c.telefono}</div>` : ''}
                     ${c.email ? `<div class="item-details">📧 ${c.email}</div>` : ''}
                 </div>
-                <button class="btn-delete" onclick="app.eliminarCliente('${c.id}')">Eliminar</button>
+                <div class="item-actions">
+                    <button class="btn-edit" onclick="app.editarCliente('${c.id}')">Editar</button>
+                    <button class="btn-delete" onclick="app.eliminarCliente('${c.id}')">Eliminar</button>
+                </div>
             </div>
         `).join('');
     }
@@ -384,28 +490,73 @@ class SimpleClubFirebase {
 
             const total = cantidad * precioUnitario;
 
-            await db.collection('ventas').add({
-                productoId,
-                productoNombre: producto.nombre,
-                miembroId,
-                miembroNombre: miembro.nombre,
-                clienteId,
-                clienteNombre: cliente.nombre,
-                cantidad,
-                precioUnitario,
-                total,
-                fecha,
-                notas: notas || '',
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            // Verificar si estamos editando
+            const ventaId = document.getElementById('form-venta').dataset.editId;
 
-            this.mostrarNotificacion('Venta registrada exitosamente ✓');
+            if (ventaId) {
+                // Actualizar venta existente
+                await db.collection('ventas').doc(ventaId).update({
+                    productoId,
+                    productoNombre: producto.nombre,
+                    miembroId,
+                    miembroNombre: miembro.nombre,
+                    clienteId,
+                    clienteNombre: cliente.nombre,
+                    cantidad,
+                    precioUnitario,
+                    total,
+                    fecha,
+                    notas: notas || '',
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                this.mostrarNotificacion('Venta actualizada exitosamente ✓');
+                delete document.getElementById('form-venta').dataset.editId;
+            } else {
+                // Crear nueva venta
+                await db.collection('ventas').add({
+                    productoId,
+                    productoNombre: producto.nombre,
+                    miembroId,
+                    miembroNombre: miembro.nombre,
+                    clienteId,
+                    clienteNombre: cliente.nombre,
+                    cantidad,
+                    precioUnitario,
+                    total,
+                    fecha,
+                    notas: notas || '',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                this.mostrarNotificacion('Venta registrada exitosamente ✓');
+            }
+
             document.getElementById('form-venta').reset();
             this.actualizarFechaHoy();
         } catch (error) {
-            console.error('Error al agregar venta:', error);
-            this.mostrarNotificacion('Error al registrar venta: ' + error.message, 'error');
+            console.error('Error al guardar venta:', error);
+            this.mostrarNotificacion('Error al guardar venta: ' + error.message, 'error');
         }
+    }
+
+    editarVenta(id) {
+        const venta = this.ventas.find(v => v.id === id);
+        if (!venta) return;
+
+        document.getElementById('producto').value = venta.productoId;
+        document.getElementById('vendedor').value = venta.miembroId;
+        document.getElementById('comprador').value = venta.clienteId;
+        document.getElementById('cantidad').value = venta.cantidad;
+        document.getElementById('precio').value = venta.precioUnitario;
+        document.getElementById('fecha').value = venta.fecha;
+        document.getElementById('notas').value = venta.notas || '';
+
+        // Guardar el ID para saber que estamos editando
+        document.getElementById('form-venta').dataset.editId = id;
+
+        // Scroll al formulario
+        document.querySelector('#ventas .card').scrollIntoView({ behavior: 'smooth' });
     }
 
     async eliminarVenta(id) {
@@ -467,7 +618,10 @@ class SimpleClubFirebase {
                     </div>
                     ${v.notas ? `<div class="item-details" style="margin-top: 0.5rem;">📝 ${v.notas}</div>` : ''}
                 </div>
-                <button class="btn-delete" onclick="app.eliminarVenta('${v.id}')">Eliminar</button>
+                <div class="item-actions">
+                    <button class="btn-edit" onclick="app.editarVenta('${v.id}')">Editar</button>
+                    <button class="btn-delete" onclick="app.eliminarVenta('${v.id}')">Eliminar</button>
+                </div>
             </div>
         `).join('');
     }

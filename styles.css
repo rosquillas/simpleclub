@@ -274,6 +274,28 @@ textarea {
     background: #d32f2f;
 }
 
+.btn-edit {
+    background: var(--secondary-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.3s;
+    margin-right: 0.5rem;
+}
+
+.btn-edit:hover {
+    background: #1976D2;
+}
+
+.item-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
 /* Barra de búsqueda */
 .search-bar {
     margin-bottom: 1rem;
@@ -392,9 +414,16 @@ footer {
         flex-direction: column;
     }
 
-    .btn-delete {
+    .item-actions {
         margin-top: 0.5rem;
         width: 100%;
+        flex-direction: column;
+    }
+
+    .btn-delete,
+    .btn-edit {
+        width: 100%;
+        margin-right: 0;
     }
 }
 
