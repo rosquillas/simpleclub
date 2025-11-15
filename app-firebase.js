@@ -10,6 +10,7 @@ class SimpleClubFirebase {
         this.ventas = [];
         this.productos = [];
         this.miembros = [];
+        this.clientes = [];
         this.unsubscribers = [];
         this.init();
     }
@@ -24,6 +25,7 @@ class SimpleClubFirebase {
         // Escuchar cambios en tiempo real
         this.escucharProductos();
         this.escucharMiembros();
+        this.escucharClientes();
         this.escucharVentas();
     }
 
@@ -62,6 +64,25 @@ class SimpleClubFirebase {
             }, (error) => {
                 console.error('Error al escuchar miembros:', error);
                 this.mostrarNotificacion('Error al sincronizar miembros', 'error');
+            });
+
+        this.unsubscribers.push(unsubscribe);
+    }
+
+    escucharClientes() {
+        const unsubscribe = db.collection('clientes')
+            .where('activo', '==', true)
+            .orderBy('nombre')
+            .onSnapshot((snapshot) => {
+                this.clientes = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                this.renderizarClientes();
+                this.actualizarSelectores();
+            }, (error) => {
+                console.error('Error al escuchar clientes:', error);
+                this.mostrarNotificacion('Error al sincronizar clientes', 'error');
             });
 
         this.unsubscribers.push(unsubscribe);
@@ -123,6 +144,11 @@ class SimpleClubFirebase {
         document.getElementById('form-miembro').addEventListener('submit', (e) => {
             e.preventDefault();
             this.agregarMiembro();
+        });
+
+        document.getElementById('form-cliente').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.agregarCliente();
         });
     }
 
@@ -269,24 +295,92 @@ class SimpleClubFirebase {
         `).join('');
     }
 
+    // ========== CLIENTES ==========
+
+    async agregarCliente() {
+        try {
+            const nombre = document.getElementById('nombre-cliente').value;
+            const telefono = document.getElementById('telefono-cliente').value;
+            const email = document.getElementById('email-cliente').value;
+
+            await db.collection('clientes').add({
+                nombre,
+                telefono: telefono || '',
+                email: email || '',
+                activo: true,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            this.mostrarNotificacion('Cliente agregado exitosamente ✓');
+            document.getElementById('form-cliente').reset();
+        } catch (error) {
+            console.error('Error al agregar cliente:', error);
+            this.mostrarNotificacion('Error al agregar cliente: ' + error.message, 'error');
+        }
+    }
+
+    async eliminarCliente(id) {
+        // Verificar si tiene ventas
+        const ventasConCliente = this.ventas.filter(v => v.clienteId === id);
+
+        if (ventasConCliente.length > 0) {
+            this.mostrarNotificacion('No se puede eliminar: el cliente tiene ventas registradas', 'error');
+            return;
+        }
+
+        if (!confirm('¿Estás seguro de eliminar este cliente?')) return;
+
+        try {
+            await db.collection('clientes').doc(id).update({
+                activo: false
+            });
+            this.mostrarNotificacion('Cliente eliminado');
+        } catch (error) {
+            console.error('Error al eliminar cliente:', error);
+            this.mostrarNotificacion('Error al eliminar cliente', 'error');
+        }
+    }
+
+    renderizarClientes() {
+        const listaClientes = document.getElementById('lista-clientes');
+
+        if (this.clientes.length === 0) {
+            listaClientes.innerHTML = '<p class="empty-message">No hay clientes registrados</p>';
+            return;
+        }
+
+        listaClientes.innerHTML = this.clientes.map(c => `
+            <div class="item">
+                <div class="item-info">
+                    <div class="item-title">${c.nombre}</div>
+                    ${c.telefono ? `<div class="item-details">📱 ${c.telefono}</div>` : ''}
+                    ${c.email ? `<div class="item-details">📧 ${c.email}</div>` : ''}
+                </div>
+                <button class="btn-delete" onclick="app.eliminarCliente('${c.id}')">Eliminar</button>
+            </div>
+        `).join('');
+    }
+
     // ========== VENTAS ==========
 
     async agregarVenta() {
         try {
             const productoId = document.getElementById('producto').value;
             const miembroId = document.getElementById('vendedor').value;
+            const clienteId = document.getElementById('comprador').value;
             const cantidad = parseInt(document.getElementById('cantidad').value);
             const precioUnitario = parseFloat(document.getElementById('precio').value);
             const fecha = document.getElementById('fecha').value;
             const notas = document.getElementById('notas').value;
 
-            if (!productoId || !miembroId) {
-                this.mostrarNotificacion('Debes seleccionar un producto y un vendedor', 'error');
+            if (!productoId || !miembroId || !clienteId) {
+                this.mostrarNotificacion('Debes seleccionar un producto, vendedor y comprador', 'error');
                 return;
             }
 
             const producto = this.productos.find(p => p.id === productoId);
             const miembro = this.miembros.find(m => m.id === miembroId);
+            const cliente = this.clientes.find(c => c.id === clienteId);
 
             const total = cantidad * precioUnitario;
 
@@ -295,6 +389,8 @@ class SimpleClubFirebase {
                 productoNombre: producto.nombre,
                 miembroId,
                 miembroNombre: miembro.nombre,
+                clienteId,
+                clienteNombre: cliente.nombre,
                 cantidad,
                 precioUnitario,
                 total,
@@ -335,6 +431,7 @@ class SimpleClubFirebase {
         const ventasFiltradas = this.ventas.filter(v => {
             return v.productoNombre.toLowerCase().includes(termino) ||
                    v.miembroNombre.toLowerCase().includes(termino) ||
+                   (v.clienteNombre && v.clienteNombre.toLowerCase().includes(termino)) ||
                    (v.notas && v.notas.toLowerCase().includes(termino));
         });
 
@@ -357,8 +454,11 @@ class SimpleClubFirebase {
                 <div class="item-info">
                     <div class="item-title">${v.productoNombre}</div>
                     <div class="item-details">
-                        Vendedor: ${v.miembroNombre}
+                        👤 Vendedor: ${v.miembroNombre}
                     </div>
+                    ${v.clienteNombre ? `<div class="item-details">
+                        🛒 Comprador: ${v.clienteNombre}
+                    </div>` : ''}
                     <div class="item-meta">
                         <span class="badge">Cantidad: ${v.cantidad}</span>
                         <span class="badge">Precio: $${v.precioUnitario.toFixed(2)}</span>
@@ -381,6 +481,12 @@ class SimpleClubFirebase {
         document.getElementById('num-ventas').textContent = this.ventas.length;
         document.getElementById('total-productos').textContent = this.productos.length;
         document.getElementById('total-miembros').textContent = this.miembros.length;
+
+        // Actualizar total de clientes si existe el elemento
+        const totalClientesElement = document.getElementById('total-clientes');
+        if (totalClientesElement) {
+            totalClientesElement.textContent = this.clientes.length;
+        }
 
         this.renderizarTopVendedores();
         this.renderizarTopProductos();
@@ -484,6 +590,15 @@ class SimpleClubFirebase {
         selectVendedor.innerHTML = '<option value="">Selecciona un vendedor</option>' +
             this.miembros.map(m => `<option value="${m.id}">${m.nombre}</option>`).join('');
         selectVendedor.value = valorActualVendedor;
+
+        // Actualizar selector de compradores
+        const selectComprador = document.getElementById('comprador');
+        if (selectComprador) {
+            const valorActualComprador = selectComprador.value;
+            selectComprador.innerHTML = '<option value="">Selecciona un comprador</option>' +
+                this.clientes.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+            selectComprador.value = valorActualComprador;
+        }
     }
 
     formatearFecha(fecha) {

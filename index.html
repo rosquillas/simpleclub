@@ -22,6 +22,7 @@
             <button class="tab-btn active" data-tab="ventas">Ventas</button>
             <button class="tab-btn" data-tab="productos">Productos</button>
             <button class="tab-btn" data-tab="miembros">Miembros</button>
+            <button class="tab-btn" data-tab="clientes">Clientes</button>
             <button class="tab-btn" data-tab="estadisticas">Estadísticas</button>
         </nav>
 
@@ -37,9 +38,15 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="vendedor">Vendedor</label>
+                        <label for="vendedor">Vendedor (Miembro)</label>
                         <select id="vendedor" required>
                             <option value="">Selecciona un vendedor</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="comprador">Comprador (Cliente)</label>
+                        <select id="comprador" required>
+                            <option value="">Selecciona un comprador</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -65,7 +72,7 @@
             <section class="card">
                 <h2>Historial de Ventas</h2>
                 <div class="search-bar">
-                    <input type="text" id="buscar-venta" placeholder="Buscar por producto, vendedor o notas...">
+                    <input type="text" id="buscar-venta" placeholder="Buscar por producto, vendedor, comprador o notas...">
                 </div>
                 <div id="lista-ventas" class="lista-items">
                     <p class="empty-message">No hay ventas registradas</p>
@@ -120,9 +127,38 @@
             </section>
 
             <section class="card">
-                <h2>Lista de Miembros</h2>
+                <h2>Lista de Miembros (Vendedores)</h2>
                 <div id="lista-miembros" class="lista-items">
                     <p class="empty-message">No hay miembros registrados</p>
+                </div>
+            </section>
+        </div>
+
+        <!-- Pestaña de Clientes -->
+        <div id="clientes" class="tab-content">
+            <section class="card">
+                <h2>Agregar Cliente</h2>
+                <form id="form-cliente">
+                    <div class="form-group">
+                        <label for="nombre-cliente">Nombre del Cliente</label>
+                        <input type="text" id="nombre-cliente" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="telefono-cliente">Teléfono (opcional)</label>
+                        <input type="tel" id="telefono-cliente">
+                    </div>
+                    <div class="form-group">
+                        <label for="email-cliente">Email (opcional)</label>
+                        <input type="email" id="email-cliente">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Agregar Cliente</button>
+                </form>
+            </section>
+
+            <section class="card">
+                <h2>Lista de Clientes (Compradores)</h2>
+                <div id="lista-clientes" class="lista-items">
+                    <p class="empty-message">No hay clientes registrados</p>
                 </div>
             </section>
         </div>
@@ -146,7 +182,11 @@
                     </div>
                     <div class="stat-card">
                         <div class="stat-value" id="total-miembros">0</div>
-                        <div class="stat-label">Miembros</div>
+                        <div class="stat-label">Miembros (Vendedores)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-clientes">0</div>
+                        <div class="stat-label">Clientes (Compradores)</div>
                     </div>
                 </div>
             </section>

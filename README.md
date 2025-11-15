@@ -165,18 +165,24 @@ Sistema web profesional para llevar el control de ventas de tu club con base de 
    - Ingresa: nombre, precio sugerido y descripción
    - Los productos aparecerán instantáneamente para todos los usuarios
 
-2. **Agregar Miembros**
+2. **Agregar Miembros (Vendedores)**
    - Ve a la pestaña "Miembros"
    - Ingresa: nombre y teléfono (opcional)
+   - Los miembros son quienes venden los productos
 
-3. **Registrar Ventas**
+3. **Agregar Clientes (Compradores)**
+   - Ve a la pestaña "Clientes"
+   - Ingresa: nombre, teléfono y email (opcionales)
+   - Los clientes son quienes compran los productos
+
+4. **Registrar Ventas**
    - Ve a la pestaña "Ventas"
-   - Selecciona producto y vendedor
+   - Selecciona producto, vendedor (miembro) y comprador (cliente)
    - El precio se llena automáticamente
    - Ajusta cantidad y fecha
    - ¡Listo! La venta se registra en la nube
 
-4. **Ver Estadísticas**
+5. **Ver Estadísticas**
    - Pestaña "Estadísticas"
    - Total vendido, top vendedores, productos más vendidos
    - Se actualiza en tiempo real
@@ -192,12 +198,12 @@ Sistema web profesional para llevar el control de ventas de tu club con base de 
 #### Búsqueda Rápida
 
 - Barra de búsqueda en ventas
-- Filtra por producto, vendedor o notas
+- Filtra por producto, vendedor, comprador o notas
 - Resultados instantáneos
 
 #### Eliminación Segura
 
-- Productos y miembros solo se pueden eliminar si no tienen ventas asociadas
+- Productos, miembros y clientes solo se pueden eliminar si no tienen ventas asociadas
 - Ventas se pueden eliminar sin restricciones
 - Confirmación antes de eliminar
 
@@ -216,11 +222,22 @@ Sistema web profesional para llevar el control de ventas de tu club con base de 
 }
 ```
 
-#### `miembros`
+#### `miembros` (Vendedores)
 ```javascript
 {
   nombre: "Juan Pérez",
   telefono: "555-0101",
+  activo: true,
+  createdAt: Timestamp
+}
+```
+
+#### `clientes` (Compradores)
+```javascript
+{
+  nombre: "María González",
+  telefono: "555-0102",
+  email: "maria@example.com",
   activo: true,
   createdAt: Timestamp
 }
@@ -233,6 +250,8 @@ Sistema web profesional para llevar el control de ventas de tu club con base de 
   productoNombre: "Camiseta del Club",
   miembroId: "def456",
   miembroNombre: "Juan Pérez",
+  clienteId: "ghi789",
+  clienteNombre: "María González",
   cantidad: 2,
   precioUnitario: 15.00,
   total: 30.00,
