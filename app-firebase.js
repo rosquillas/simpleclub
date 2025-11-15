@@ -257,7 +257,7 @@ class SimpleClubFirebase {
             <div class="item">
                 <div class="item-info">
                     <div class="item-title">${p.nombre}</div>
-                    <div class="item-details">Precio sugerido: $${p.precio.toFixed(2)}</div>
+                    <div class="item-details">Precio sugerido: $${this.formatearNumero(p.precio)}</div>
                     ${p.descripcion ? `<div class="item-details">${p.descripcion}</div>` : ''}
                 </div>
                 <div class="item-actions">
@@ -611,9 +611,9 @@ class SimpleClubFirebase {
                         🛒 Comprador: ${v.clienteNombre}
                     </div>` : ''}
                     <div class="item-meta">
-                        <span class="badge">Cantidad: ${v.cantidad}</span>
-                        <span class="badge">Precio: $${v.precioUnitario.toFixed(2)}</span>
-                        <span class="badge">Total: $${v.total.toFixed(2)}</span>
+                        <span class="badge">Cantidad: ${this.formatearNumero(v.cantidad, 0)}</span>
+                        <span class="badge">Precio: $${this.formatearNumero(v.precioUnitario)}</span>
+                        <span class="badge">Total: $${this.formatearNumero(v.total)}</span>
                         <span class="badge">Fecha: ${this.formatearFecha(v.fecha)}</span>
                     </div>
                     ${v.notas ? `<div class="item-details" style="margin-top: 0.5rem;">📝 ${v.notas}</div>` : ''}
@@ -631,15 +631,15 @@ class SimpleClubFirebase {
     renderizarEstadisticas() {
         // Resumen general
         const totalVentas = this.ventas.reduce((sum, v) => sum + v.total, 0);
-        document.getElementById('total-ventas').textContent = `$${totalVentas.toFixed(2)}`;
-        document.getElementById('num-ventas').textContent = this.ventas.length;
-        document.getElementById('total-productos').textContent = this.productos.length;
-        document.getElementById('total-miembros').textContent = this.miembros.length;
+        document.getElementById('total-ventas').textContent = `$${this.formatearNumero(totalVentas)}`;
+        document.getElementById('num-ventas').textContent = this.formatearNumero(this.ventas.length, 0);
+        document.getElementById('total-productos').textContent = this.formatearNumero(this.productos.length, 0);
+        document.getElementById('total-miembros').textContent = this.formatearNumero(this.miembros.length, 0);
 
         // Actualizar total de clientes si existe el elemento
         const totalClientesElement = document.getElementById('total-clientes');
         if (totalClientesElement) {
-            totalClientesElement.textContent = this.clientes.length;
+            totalClientesElement.textContent = this.formatearNumero(this.clientes.length, 0);
         }
 
         this.renderizarTopVendedores();
@@ -676,9 +676,9 @@ class SimpleClubFirebase {
             <div class="top-item">
                 <div>
                     <div class="top-item-name">${index + 1}. ${v.nombre}</div>
-                    <div style="font-size: 0.85rem; color: #666;">${v.cantidad} venta${v.cantidad !== 1 ? 's' : ''}</div>
+                    <div style="font-size: 0.85rem; color: #666;">${this.formatearNumero(v.cantidad, 0)} venta${v.cantidad !== 1 ? 's' : ''}</div>
                 </div>
-                <div class="top-item-value">$${v.total.toFixed(2)}</div>
+                <div class="top-item-value">$${this.formatearNumero(v.total)}</div>
             </div>
         `).join('');
     }
@@ -713,9 +713,9 @@ class SimpleClubFirebase {
             <div class="top-item">
                 <div>
                     <div class="top-item-name">${index + 1}. ${p.nombre}</div>
-                    <div style="font-size: 0.85rem; color: #666;">${p.cantidad} unidad${p.cantidad !== 1 ? 'es' : ''} vendidas</div>
+                    <div style="font-size: 0.85rem; color: #666;">${this.formatearNumero(p.cantidad, 0)} unidad${p.cantidad !== 1 ? 'es' : ''} vendidas</div>
                 </div>
-                <div class="top-item-value">$${p.total.toFixed(2)}</div>
+                <div class="top-item-value">$${this.formatearNumero(p.total)}</div>
             </div>
         `).join('');
     }
@@ -727,7 +727,7 @@ class SimpleClubFirebase {
         const selectProducto = document.getElementById('producto');
         const valorActual = selectProducto.value;
         selectProducto.innerHTML = '<option value="">Selecciona un producto</option>' +
-            this.productos.map(p => `<option value="${p.id}">${p.nombre} - $${p.precio.toFixed(2)}</option>`).join('');
+            this.productos.map(p => `<option value="${p.id}">${p.nombre} - $${this.formatearNumero(p.precio)}</option>`).join('');
         selectProducto.value = valorActual;
 
         // Actualizar precio cuando se selecciona un producto
@@ -758,6 +758,14 @@ class SimpleClubFirebase {
     formatearFecha(fecha) {
         const opciones = { year: 'numeric', month: 'short', day: 'numeric' };
         return new Date(fecha + 'T00:00:00').toLocaleDateString('es-ES', opciones);
+    }
+
+    formatearNumero(numero, decimales = 2) {
+        // Formatear número con separadores de miles (comas) y decimales
+        return numero.toLocaleString('en-US', {
+            minimumFractionDigits: decimales,
+            maximumFractionDigits: decimales
+        });
     }
 
     mostrarNotificacion(mensaje, tipo = 'success') {
