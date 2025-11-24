@@ -370,8 +370,6 @@ class SimpleClubFirebase {
     async agregarCliente() {
         try {
             const nombre = document.getElementById('nombre-cliente').value;
-            const telefono = document.getElementById('telefono-cliente').value;
-            const email = document.getElementById('email-cliente').value;
 
             // Verificar si estamos editando
             const clienteId = document.getElementById('form-cliente').dataset.editId;
@@ -380,8 +378,6 @@ class SimpleClubFirebase {
                 // Actualizar cliente existente
                 await db.collection('clientes').doc(clienteId).update({
                     nombre,
-                    telefono: telefono || '',
-                    email: email || '',
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
@@ -391,8 +387,6 @@ class SimpleClubFirebase {
                 // Crear nuevo cliente
                 await db.collection('clientes').add({
                     nombre,
-                    telefono: telefono || '',
-                    email: email || '',
                     activo: true,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
@@ -412,8 +406,6 @@ class SimpleClubFirebase {
         if (!cliente) return;
 
         document.getElementById('nombre-cliente').value = cliente.nombre;
-        document.getElementById('telefono-cliente').value = cliente.telefono || '';
-        document.getElementById('email-cliente').value = cliente.email || '';
 
         // Guardar el ID para saber que estamos editando
         document.getElementById('form-cliente').dataset.editId = id;
@@ -456,8 +448,6 @@ class SimpleClubFirebase {
             <div class="item">
                 <div class="item-info">
                     <div class="item-title">${c.nombre}</div>
-                    ${c.telefono ? `<div class="item-details">📱 ${c.telefono}</div>` : ''}
-                    ${c.email ? `<div class="item-details">📧 ${c.email}</div>` : ''}
                 </div>
                 <div class="item-actions">
                     <button class="btn-edit" onclick="app.editarCliente('${c.id}')">Editar</button>
@@ -761,8 +751,21 @@ class SimpleClubFirebase {
         if (selectComprador) {
             const valorActualComprador = selectComprador.value;
             selectComprador.innerHTML = '<option value="">Selecciona un comprador</option>' +
+                '<option value="nuevo_cliente">+ Nuevo cliente</option>' +
                 this.clientes.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
             selectComprador.value = valorActualComprador;
+
+            // Manejar selección de "Nuevo cliente"
+            selectComprador.onchange = (e) => {
+                if (e.target.value === 'nuevo_cliente') {
+                    // Cambiar a la pestaña de clientes
+                    document.querySelector('.tab-btn[data-tab="clientes"]').click();
+                    // Resetear el selector
+                    setTimeout(() => {
+                        selectComprador.value = '';
+                    }, 100);
+                }
+            };
         }
     }
 
