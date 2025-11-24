@@ -654,11 +654,16 @@ class SimpleClubFirebase {
                 ventasPorVendedor[v.miembroId] = {
                     nombre: v.miembroNombre,
                     total: 0,
-                    cantidad: 0
+                    productos: {}
                 };
             }
             ventasPorVendedor[v.miembroId].total += v.total;
-            ventasPorVendedor[v.miembroId].cantidad += 1;
+
+            // Agrupar por producto
+            if (!ventasPorVendedor[v.miembroId].productos[v.productoNombre]) {
+                ventasPorVendedor[v.miembroId].productos[v.productoNombre] = 0;
+            }
+            ventasPorVendedor[v.miembroId].productos[v.productoNombre] += v.cantidad;
         });
 
         const topVendedores = Object.values(ventasPorVendedor)
@@ -672,15 +677,21 @@ class SimpleClubFirebase {
             return;
         }
 
-        contenedor.innerHTML = topVendedores.map((v, index) => `
-            <div class="top-item">
-                <div>
-                    <div class="top-item-name">${index + 1}. ${v.nombre}</div>
-                    <div style="font-size: 0.85rem; color: #666;">${this.formatearNumero(v.cantidad, 0)} venta${v.cantidad !== 1 ? 's' : ''}</div>
+        contenedor.innerHTML = topVendedores.map((v, index) => {
+            const productosDetalles = Object.entries(v.productos)
+                .map(([producto, cantidad]) => `${this.formatearNumero(cantidad, 0)} ${producto}`)
+                .join(', ');
+
+            return `
+                <div class="top-item">
+                    <div>
+                        <div class="top-item-name">${index + 1}. ${v.nombre}</div>
+                        <div style="font-size: 0.85rem; color: #666; margin-top: 0.25rem;">${productosDetalles}</div>
+                    </div>
+                    <div class="top-item-value">$${this.formatearNumero(v.total)}</div>
                 </div>
-                <div class="top-item-value">$${this.formatearNumero(v.total)}</div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     renderizarTopProductos() {
