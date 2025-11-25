@@ -92,7 +92,6 @@ class SimpleClubFirebase {
         const unsubscribe = db.collection('ventas')
             .orderBy('fecha', 'desc')
             .orderBy('timestamp', 'desc')
-            .limit(100)
             .onSnapshot((snapshot) => {
                 this.ventas = snapshot.docs.map(doc => ({
                     id: doc.id,
@@ -580,7 +579,7 @@ class SimpleClubFirebase {
     }
 
     renderizarVentas() {
-        this.renderizarListaVentas(this.ventas, document.getElementById('lista-ventas'));
+        this.renderizarListaVentas(this.ventas.slice(0, 100), document.getElementById('lista-ventas'));
         this.actualizarSelectores();
     }
 
