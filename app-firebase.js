@@ -20,6 +20,7 @@ class SimpleClubFirebase {
         this.configurarPestañas();
         this.configurarFormularios();
         this.configurarBusqueda();
+        this.configurarExportacion();
         this.actualizarFechaHoy();
 
         // Escuchar cambios en tiempo real
@@ -163,6 +164,90 @@ class SimpleClubFirebase {
     actualizarFechaHoy() {
         const hoy = new Date().toISOString().split('T')[0];
         document.getElementById('fecha').value = hoy;
+    }
+
+    // ========== EXPORTACIÓN CSV ==========
+
+    configurarExportacion() {
+        const btn = document.getElementById('btn-exportar-csv');
+        if (btn) {
+            btn.addEventListener('click', () => this.exportarVentasCSV());
+        }
+    }
+
+    async exportarVentasCSV() {
+        const btn = document.getElementById('btn-exportar-csv');
+        const textoOriginal = btn ? btn.textContent : '';
+
+        try {
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = 'Exportando...';
+            }
+
+            // Consultar TODAS las ventas (sin el limit del listener en tiempo real)
+            const snapshot = await db.collection('ventas')
+                .orderBy('fecha', 'desc')
+                .get();
+
+            if (snapshot.empty) {
+                this.mostrarNotificacion('No hay ventas para exportar', 'error');
+                return;
+            }
+
+            const encabezados = [
+                'Fecha', 'Producto', 'Vendedor', 'Comprador',
+                'Cantidad', 'Precio Unitario', 'Total', 'Notas'
+            ];
+
+            const filas = snapshot.docs.map(doc => {
+                const v = doc.data();
+                return [
+                    v.fecha || '',
+                    v.productoNombre || '',
+                    v.miembroNombre || '',
+                    v.clienteNombre || '',
+                    v.cantidad != null ? v.cantidad : '',
+                    v.precioUnitario != null ? v.precioUnitario : '',
+                    v.total != null ? v.total : '',
+                    v.notas || ''
+                ].map(campo => this.escaparCampoCSV(campo)).join(',');
+            });
+
+            // BOM UTF-8 para que Excel muestre correctamente los acentos
+            const contenido = '﻿' + [encabezados.join(','), ...filas].join('\r\n');
+
+            const blob = new Blob([contenido], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const hoy = new Date().toISOString().split('T')[0];
+
+            const enlace = document.createElement('a');
+            enlace.href = url;
+            enlace.download = `ventas-${hoy}.csv`;
+            document.body.appendChild(enlace);
+            enlace.click();
+            document.body.removeChild(enlace);
+            URL.revokeObjectURL(url);
+
+            this.mostrarNotificacion(`Reporte exportado: ${filas.length} venta${filas.length !== 1 ? 's' : ''} ✓`);
+        } catch (error) {
+            console.error('Error al exportar ventas:', error);
+            this.mostrarNotificacion('Error al exportar el reporte: ' + error.message, 'error');
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = textoOriginal;
+            }
+        }
+    }
+
+    escaparCampoCSV(campo) {
+        const texto = String(campo);
+        // Envolver en comillas si contiene comas, comillas o saltos de línea (RFC 4180)
+        if (/[",\r\n]/.test(texto)) {
+            return `"${texto.replace(/"/g, '""')}"`;
+        }
+        return texto;
     }
 
     // ========== PRODUCTOS ==========

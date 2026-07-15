@@ -114,6 +114,24 @@ header h1 {
     font-size: 1.3rem;
 }
 
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.card-header h2 {
+    margin-bottom: 0;
+}
+
+.card-header .btn-secondary {
+    margin: 0;
+    white-space: nowrap;
+}
+
 /* Formularios */
 .form-group {
     margin-bottom: 1rem;
